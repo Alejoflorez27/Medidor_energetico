@@ -1,7 +1,7 @@
 <?php
 
 
-/*require_once "controladores/plantilla.controlador.php";
+require_once "controladores/plantilla.controlador.php";
 require_once "controladores/usuarios.controlador.php";
 require_once "controladores/categorias.controlador.php";
 require_once "controladores/productos.controlador.php";
@@ -10,9 +10,9 @@ require_once "controladores/ventas.controlador.php";
 require_once "controladores/canciones.controlador.php";
 require_once "controladores/albunes.controlador.php";
 require_once "controladores/artistas.controlador.php";
-require_once "controladores/monitor.controlador.php";*/
+require_once "controladores/monitor.controlador.php";
 
-/*require_once "modelos/plantilla.modelo.php";
+require_once "modelos/plantilla.modelo.php";
 require_once "modelos/usuarios.modelo.php";
 require_once "modelos/categorias.modelo.php";
 require_once "modelos/productos.modelo.php";
@@ -21,31 +21,8 @@ require_once "modelos/ventas.modelo.php";
 require_once "modelos/canciones.modelo.php";
 require_once "modelos/albunes.modelo.php";
 require_once "modelos/artistas.modelo.php";
-require_once "modelos/monitor.modelo.php";*/
+require_once "modelos/monitor.modelo.php";
 
-require_once "/var/www/html/Medidor_energetico/controladores/plantilla.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/usuarios.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/categorias.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/productos.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/clientes.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/ventas.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/canciones.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/albunes.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/artistas.controlador.php";
-require_once "/var/www/html/Medidor_energetico/controladores/monitor.controlador.php";
-
-require_once "/var/www/html/Medidor_energetico/modelos/plantilla.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/usuarios.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modeloscategorias.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/productos.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/clientes.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/ventas.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/canciones.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/albunes.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/artistas.modelo.php";
-require_once "/var/www/html/Medidor_energetico/modelos/monitor.modelo.php";
-
-/*/var/www/html/Medidor_energetico/modelos*/
 
 
 $plantilla = new ControladorPlantilla();
