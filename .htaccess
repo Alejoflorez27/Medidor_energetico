@@ -1,5 +1,17 @@
+#Options All -Indexes
+
+#RewriteEngine On
+
+#RewriteRule ^([-a-zA-Z0-9]+)$ index.php?ruta=$1
+
 Options All -Indexes
 
 RewriteEngine On
 
-RewriteRule ^([-a-zA-Z0-9]+)$ index.php?ruta=$1
+# Reescribe las URLs a index.php
+RewriteRule ^([-a-zA-Z0-9]+)$ index.php?ruta=$1 [L,QSA]
+
+# Manejo de archivos existentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
