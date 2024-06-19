@@ -131,7 +131,7 @@ CUERPO DOCUMENTO
         $_GET["ruta"] == "artistas" ||
         $_GET["ruta"] == "salir"){
 
-        include "Medidor_energetico/modulos/".$_GET["ruta"].".php";
+        include "modulos/".$_GET["ruta"].".php";
 
     }else{
 
