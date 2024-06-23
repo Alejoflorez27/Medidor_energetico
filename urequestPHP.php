@@ -19,14 +19,15 @@ $sq -> execute();
 echo json_encode("ok");*/
 
 
-
-// insertsion de datos
+/*
+// insertsion de datos local
 // Configuración de la base de datos local
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "pos";
-
+*/
+// insertsion de datos aws
 // Configuración de la base de datos local
 $servername = "localhost";
 $username = "alejo";

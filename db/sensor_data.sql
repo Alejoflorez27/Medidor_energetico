@@ -1,0 +1,7 @@
+CREATE TABLE sensor_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    frequency FLOAT NOT NULL,
+    voltage FLOAT NOT NULL,
+    current FLOAT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
