@@ -21,10 +21,16 @@ echo json_encode("ok");*/
 
 
 // insertsion de datos
-// Configuración de la base de datos
+// Configuración de la base de datos local
 $servername = "localhost";
 $username = "root";
 $password = "";
+$dbname = "pos";
+
+// Configuración de la base de datos local
+$servername = "localhost";
+$username = "alejo";
+$password = "Guiday624$";
 $dbname = "pos";
 
 // Crear conexión
