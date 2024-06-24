@@ -1,38 +1,15 @@
 <?php
-/*//local
-$GLOBALS["conexion"] = new PDO('mysql:host=localhost; dbname=pos', 'root', '');
-//aws
-//$GLOBALS["conexion"] = new PDO('mysql:host=localhost; dbname=pos', 'alejo', 'Guiday624$');
-$GLOBALS["conexion"] -> exec("set names utf8");
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
-$json = file_get_contents('php://input');
-$data = json_decode($json);
-//$led1on = $data->led1on;
-
-$sq = $conexion -> prepare("");
-$sq -> execute();
-
-echo json_encode("ok");*/
-
-
-/*
-// insertsion de datos local
 // Configuración de la base de datos local
 $servername = "localhost";
+//local
 $username = "root";
 $password = "";
 $dbname = "pos";
-*/
-// insertsion de datos aws
-// Configuración de la base de datos local
-$servername = "localhost";
-$username = "alejo";
+
+//aws
+/*$username = "alejo";
 $password = "Guiday624$";
-$dbname = "pos";
+$dbname = "pos";*/
 
 // Crear conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -45,14 +22,55 @@ if ($conn->connect_error) {
 // Obtener los datos JSON enviados desde el ESP32
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (isset($data['F']) && isset($data['V']) && isset($data['C'])) {
-    $frequency = $data['F'];
+if (isset($data['V']) && isset($data['Ia']) && isset($data['Ib']) && isset($data['Ic']) &&
+    isset($data['Pa']) && isset($data['Pb']) && isset($data['Pc']) && isset($data['Ps']) &&
+    isset($data['Qa']) && isset($data['Qb']) && isset($data['Qc']) && isset($data['Qs']) &&
+    isset($data['PFA']) && isset($data['PFB']) && isset($data['PFC']) && isset($data['PFS']) &&
+    isset($data['Sa']) && isset($data['Sb']) && isset($data['Sc']) && isset($data['Ss']) &&
+    isset($data['F']) && isset($data['Energy'])) {
+
     $voltage = $data['V'];
-    $current = $data['C'];
+    $currentA = $data['Ia'];
+    $currentB = $data['Ib'];
+    $currentC = $data['Ic'];
+    $powerA = $data['Pa'];
+    $powerB = $data['Pb'];
+    $powerC = $data['Pc'];
+    $totalPower = $data['Ps'];
+    $reactivePowerA = $data['Qa'];
+    $reactivePowerB = $data['Qb'];
+    $reactivePowerC = $data['Qc'];
+    $totalReactivePower = $data['Qs'];
+    $powerFactorA = $data['PFA'];
+    $powerFactorB = $data['PFB'];
+    $powerFactorC = $data['PFC'];
+    $totalPowerFactor = $data['PFS'];
+    $apparentPowerA = $data['Sa'];
+    $apparentPowerB = $data['Sb'];
+    $apparentPowerC = $data['Sc'];
+    $totalApparentPower = $data['Ss'];
+    $frequency = $data['F'];
+    $energy = $data['Energy'];
+
+    // Calcular los ángulos de potencia
+    $angleA = acos($powerFactorA) * 180 / M_PI;
+    $angleB = acos($powerFactorB) * 180 / M_PI;
+    $angleC = acos($powerFactorC) * 180 / M_PI;
+    $totalAngle = acos($totalPowerFactor) * 180 / M_PI;
 
     // Preparar y ejecutar la consulta SQL
-    $stmt = $conn->prepare("INSERT INTO sensor_data (frequency, voltage, current) VALUES (?, ?, ?)");
-    $stmt->bind_param("ddd", $frequency, $voltage, $current);
+    $stmt = $conn->prepare("INSERT INTO sensor_data (
+        voltage, currentA, currentB, currentC, powerA, powerB, powerC, totalPower,
+        reactivePowerA, reactivePowerB, reactivePowerC, totalReactivePower,
+        powerFactorA, powerFactorB, powerFactorC, totalPowerFactor,
+        apparentPowerA, apparentPowerB, apparentPowerC, totalApparentPower,
+        frequency, energy, angleA, angleB, angleC, totalAngle
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("dddddddddddddddddddddddddd", $voltage, $currentA, $currentB, $currentC,
+                      $powerA, $powerB, $powerC, $totalPower, $reactivePowerA, $reactivePowerB,
+                      $reactivePowerC, $totalReactivePower, $powerFactorA, $powerFactorB,
+                      $powerFactorC, $totalPowerFactor, $apparentPowerA, $apparentPowerB,
+                      $apparentPowerC, $totalApparentPower, $frequency, $energy, $angleA, $angleB, $angleC, $totalAngle);
 
     if ($stmt->execute()) {
         echo "New record created successfully";
