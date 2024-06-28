@@ -26,7 +26,7 @@ $variables = ControladorMonitor::ctrMostrarMonitor($item, $valor);
 
                 // Iterar sobre los resultados y almacenarlos en el array
                 foreach ($variables as $row) {
-                    $data[] = array("fecha" => $row["fecha"], "frecuencia" => $row["frecuencia"]);
+                    $data[] = array("fecha" => $row["timestamp"], "frecuencia" => $row["frequency"]);
                 }
             }
             ?>
@@ -36,10 +36,10 @@ $variables = ControladorMonitor::ctrMostrarMonitor($item, $valor);
                 var myChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: [<?php foreach ($data as $row) { echo '"' . $row['fecha'] . '",'; } ?>],
+                        labels: [<?php foreach ($data as $row) { echo '"' . $row['timestamp'] . '",'; } ?>],
                         datasets: [{
                             label: 'Frecuencia',
-                            data: [<?php foreach ($data as $row) { echo $row['frecuencia'] . ','; } ?>],
+                            data: [<?php foreach ($data as $row) { echo $row['frequency'] . ','; } ?>],
                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                             borderColor: 'rgba(54, 162, 235, 1)',
                             borderWidth: 1

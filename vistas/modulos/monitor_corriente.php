@@ -37,9 +37,9 @@ $variables = ControladorMonitor::ctrMostrarMonitor($item, $valor);
                     foreach ($variables as $key => $value) {
                         echo '<tr>
                                 <td>'.($key+1).'</td>
-                                <td class="text-uppercase">'.$value["voltaje"].'</td>
-                                <td class="text-uppercase">'.$value["frecuencia"].'</td>
-                                <td class="text-uppercase">'.$value["fecha"].'</td>
+                                <td class="text-uppercase">'.$value["voltage"].'</td>
+                                <td class="text-uppercase">'.$value["frequency"].'</td>
+                                <td class="text-uppercase">'.$value["timestamp"].'</td>
                             </tr>';
                     }
                     ?>

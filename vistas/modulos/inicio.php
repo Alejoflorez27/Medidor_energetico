@@ -20,9 +20,9 @@
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
               <li class="active"><a href="#activity" data-toggle="tab">Inicio</a></li>
-              <li><a href="#timeline" data-toggle="tab">Corriente</a></li>
-              <li><a href="#settings" data-toggle="tab">Voltage</a></li>
-              <li><a href="#Artistas" data-toggle="tab">Frecuencia</a></li>
+              <li><a href="#settings" data-toggle="tab">Graficas</a></li>
+              <li><a href="#timeline" data-toggle="tab">Dashboard</a></li>
+              <!--<li><a href="#Artistas" data-toggle="tab">Frecuencia</a></li>-->
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="activity">
@@ -39,7 +39,7 @@
               <!-- /.tab-pane -->
 
               <div class="tab-pane" id="settings">
-                  <h1>Voltaje</h1>
+                  <h1>Mediciones de Medidor</h1>
                   <?php include "monitor_voltaje.php"?>
               </div>
               <!-- /.tab-pane -->

@@ -118,7 +118,8 @@ CUERPO DOCUMENTO
   if (isset($_GET["ruta"])) {
     /* URLS AMIIGABLES */
     if ($_GET["ruta"] == "inicio" || 
-        $_GET["ruta"] == "usuarios" || 
+        $_GET["ruta"] == "usuarios" ||
+        $_GET["ruta"] == "monitor_corriente_grafica"||  
         $_GET["ruta"] == "categorias"|| 
         $_GET["ruta"] == "productos" || 
         $_GET["ruta"] == "clientes" || 

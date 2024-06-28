@@ -24,17 +24,17 @@
 
 			</li>
 
-			<!--<li>
+			<li>
 
-				<a href="artistas">
+				<a href="monitor_corriente_grafica">
 
-				<i class="fa fa-user"></i>
-					<span>Artistas</span>
+				<i class="fa fa-bar-chart"></i>
+					<span>Graficas</span>
 				</a>
 
 			</li>
 
-			<li>
+			<!--<li>
 
 				<a href="categorias">
 

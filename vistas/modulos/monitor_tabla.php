@@ -20,7 +20,27 @@ $variables = ControladorMonitor::ctrMostrarMonitor($item, $valor);
                     <tr>
                         <th style="width: 10px">ID</th>
                         <th>VOLTAJE</th>
-                        <th>FRECUENCIA</th>
+                        <th>Ia</th>
+                        <th>Ib</th>
+                        <th>Ic</th>
+                        <th>Pa</th>
+                        <th>Pb</th>
+                        <th>Pc</th>
+                        <th>Ps</th>
+                        <th>Qa</th>
+                        <th>Qb</th>
+                        <th>Qc</th>
+                        <th>Qs</th>
+                        <th>PFa</th>
+                        <th>PFb</th>
+                        <th>PFc</th>
+                        <th>PFs</th>
+                        <th>Sa</th>
+                        <th>Sb</th>
+                        <th>Sc</th>
+                        <th>Ss</th>
+                        <th>F</th>
+                        <th>Consumo(Kwh)</th>
                         <th>FECHA</th>            
                     </tr>
                 </thead>
@@ -36,11 +56,32 @@ $variables = ControladorMonitor::ctrMostrarMonitor($item, $valor);
                     //El foreach lo hacemos debido a que existe un array
                     foreach ($variables as $key => $value) {
                         echo '<tr>
-                                <td>'.($key+1).'</td>
-                                <td class="text-uppercase">'.$value["voltaje"].'</td>
-                                <td class="text-uppercase">'.$value["frecuencia"].'</td>
-                                <td class="text-uppercase">'.$value["fecha"].'</td>
-                            </tr>';
+                        <td>'.($key+1).'</td>
+                        <td class="text-uppercase">'.$value["voltage"].' V</td>
+                        <td class="text-uppercase">'.$value["currentA"].' A</td> 
+                        <td class="text-uppercase">'.$value["currentB"].' A</td>
+                        <td class="text-uppercase">'.$value["currentC"].' A</td>
+                        <td class="text-uppercase">'.$value["powerA"].' W</td> 
+                        <td class="text-uppercase">'.$value["powerB"].' W</td>
+                        <td class="text-uppercase">'.$value["powerC"].' W</td>
+                        <td class="text-uppercase">'.$value["totalPower"].' W</td>
+                        <td class="text-uppercase">'.$value["reactivePowerA"].' var</td> 
+                        <td class="text-uppercase">'.$value["reactivePowerB"].' var</td>
+                        <td class="text-uppercase">'.$value["reactivePowerC"].' var</td>
+                        <td class="text-uppercase">'.$value["totalReactivePower"].' var</td>
+                        <td class="text-uppercase">'.$value["powerFactorA"].'</td> 
+                        <td class="text-uppercase">'.$value["powerFactorB"].'</td>
+                        <td class="text-uppercase">'.$value["powerFactorC"].'</td>
+                        <td class="text-uppercase">'.$value["totalPowerFactor"].'</td>
+                        <td class="text-uppercase">'.$value["apparentPowerA"].' VA</td> 
+                        <td class="text-uppercase">'.$value["apparentPowerB"].' VA</td>
+                        <td class="text-uppercase">'.$value["apparentPowerC"].' VA</td>
+                        <td class="text-uppercase">'.$value["totalApparentPower"].' VA</td>
+                        <td class="text-uppercase">'.$value["frequency"].' Hz</td>
+                        <td class="text-uppercase">'.$value["energy"].' kWh</td>
+                        <td class="text-uppercase">'.$value["timestamp"].'</td>
+                    </tr>';
+                
                     }
                     ?>
                 </tbody>

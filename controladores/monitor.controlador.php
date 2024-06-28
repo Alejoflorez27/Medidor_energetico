@@ -93,7 +93,7 @@ class ControladorMonitor{
 	static public function ctrMostrarMonitor($item, $valor){
 
 		//Para mandarle los parametros al modelo de categorias
-		$tabla = "monitor";
+		$tabla = "sensor_data";
 
 		//Se los pasamos al modelo para que nos retorne una respuesta
 		$respuesta = ModeloMonitor::mdlMostrarVariables($tabla, $item, $valor);
