@@ -67,6 +67,11 @@ if (!empty($variables)) {
             width: 100%; /* Asegúrate de que los gráficos ocupen todo el ancho del contenedor */
             height: 400px; /* Ajusta la altura según sea necesario */
         }
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Una columna en pantallas más estrechas */
+            }
+        }
     </style>
 </head>
 <body>
