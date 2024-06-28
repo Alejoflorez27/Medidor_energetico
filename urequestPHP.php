@@ -2,14 +2,14 @@
 // Configuración de la base de datos local
 $servername = "localhost";
 //local
-$username = "root";
+/*$username = "root";
 $password = "";
-$dbname = "pos";
+$dbname = "pos";*/
 
 //aws
-/*$username = "alejo";
+$username = "alejo";
 $password = "Guiday624$";
-$dbname = "pos";*/
+$dbname = "pos";
 
 // Crear conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
