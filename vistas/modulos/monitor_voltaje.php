@@ -82,6 +82,7 @@ if (!empty($variables)) {
 
     <!-- Contenedor para el gráfico -->
     <div class="grid-container">
+        <div class="grid-item"><canvas id="graficoMaxMin"></canvas></div>
         <div class="grid-item"><canvas id="grafico"></canvas></div>
         <div class="grid-item"><canvas id="grafico1"></canvas></div>
         <div class="grid-item"><canvas id="grafico2"></canvas></div>
@@ -155,39 +156,140 @@ if (!empty($variables)) {
     const energy = data.map(d => d.energy);
 
 
-    // Crear el gráfico con Chart.js Voltaje
-    const ctx = document.getElementById('grafico').getContext('2d');
-    const myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Voltaje',
-                data: valoresVoltaje,
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+// Función para contar los valores en cada rango de voltaje y devolver los datos para el gráfico de pastel
+function contarValoresPorRango(valores) {
+    let bajo110 = 0;
+    let entre110y120 = 0;
+    let mas120 = 0;
+
+    valores.forEach(valor => {
+        if (valor < 110) {
+            bajo110++;
+        } else if (valor >= 110 && valor < 120) {
+            entre110y120++;
+        } else {
+            mas120++;
         }
     });
 
-    // Crear el gráfico con Chart.js Frecuencia
+    return [bajo110, entre110y120, mas120];
+}
+
+// Obtener el conteo de valores por rangos
+const [bajo110Count, entre110y120Count, mas120Count] = contarValoresPorRango(valoresVoltaje);
+
+// Colores para los rangos
+const backgroundColors = ['green', 'yellow', 'red'];
+
+// Etiquetas para el gráfico de pastel
+const labels1 = ['Menor a 110V', 'Entre 110V y 120V', 'Mayor o igual a 120V'];
+
+// Crear el gráfico tipo pie con Chart.js
+const ctxMaxMin = document.getElementById('graficoMaxMin').getContext('2d');
+const myChartMaxMin = new Chart(ctxMaxMin, {
+    type: 'pie',
+    data: {
+        labels: labels1,
+        datasets: [{
+            label: 'Conteo de Voltajes',
+            data: [bajo110Count, entre110y120Count, mas120Count],
+            backgroundColor: backgroundColors,
+            borderWidth: 1
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.raw !== null) {
+                            label += context.raw;
+                        }
+                        label += ' valores';
+                        return label;
+                    },
+                    title: function(context) {
+                        return context[0].label;
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Crear el gráfico de barras para el voltaje con Chart.js
+const ctx = document.getElementById('grafico').getContext('2d');
+const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Voltaje (V)',
+            data: valoresVoltaje,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Voltaje (V)'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Fecha y Hora'
+                }
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += context.parsed.y + ' V';
+                        }
+                        return label;
+                    },
+                    title: function(context) {
+                        return context[0].label;
+                    }
+                }
+            }
+        }
+    }
+});
+
+
+
+
+    // Crear el gráfico con Chart.js para Frecuencia
     const ctx1 = document.getElementById('grafico1').getContext('2d');
     const myChart1 = new Chart(ctx1, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Frecuencia',
-                data: frecuencia,
+                label: 'Frecuencia (Hz)',
+                data: frecuencia,  // Asegúrate de que 'frecuencia' contenga los datos de frecuencia
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
@@ -196,22 +298,52 @@ if (!empty($variables)) {
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Frecuencia (Hz)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' Hz';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Fase de corriente A
+
+    // Crear el gráfico con Chart.js para Fase de Corriente A
     const ctx2 = document.getElementById('grafico2').getContext('2d');
     const myChart2 = new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Fase de corriente A',
-                data: currentA,
+                label: 'Fase de Corriente A (A)',
+                data: currentA,  // Asegúrate de que 'currentA' contenga los datos de corriente
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
@@ -220,467 +352,1068 @@ if (!empty($variables)) {
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Corriente (A)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' A';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Fase de corriente B
+
+    // Crear el gráfico con Chart.js para Fase de Corriente B
     const ctx3 = document.getElementById('grafico3').getContext('2d');
     const myChart3 = new Chart(ctx3, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Fase de corriente B',
-                data: currentB,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Fase de Corriente B (A)',
+                data: currentB,  // Asegúrate de que 'currentB' contenga los datos de corriente
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(75, 192, 192, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Corriente (A)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' A';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Fase de corriente C
+
+    // Crear el gráfico con Chart.js para Fase de Corriente C
     const ctx4 = document.getElementById('grafico4').getContext('2d');
     const myChart4 = new Chart(ctx4, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Fase de corriente C',
-                data: currentC,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Fase de Corriente C (A)',
+                data: currentC,  // Asegúrate de que 'currentC' contenga los datos de corriente
+                backgroundColor: 'rgba(153, 102, 255, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(153, 102, 255, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Corriente (A)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' A';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia activa de fase A
+
+    // Crear el gráfico con Chart.js para Potencia Activa de Fase A
     const ctx5 = document.getElementById('grafico5').getContext('2d');
     const myChart5 = new Chart(ctx5, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia activa de fase A',
-                data: powerA,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Activa de Fase A (W)',
+                data: powerA,  // Asegúrate de que 'powerA' contenga los datos de potencia activa
+                backgroundColor: 'rgba(255, 159, 64, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 159, 64, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Activa (W)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' W';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia activa de fase B
+
+    // Crear el gráfico con Chart.js para Potencia Activa de Fase B
     const ctx6 = document.getElementById('grafico6').getContext('2d');
     const myChart6 = new Chart(ctx6, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia activa de fase B',
-                data: powerB,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Activa de Fase B (W)',
+                data: powerB,  // Asegúrate de que 'powerB' contenga los datos de potencia activa
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(75, 192, 192, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Activa (W)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' W';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia activa de fase C
+
+    // Crear el gráfico con Chart.js para Potencia Activa de Fase C
     const ctx7 = document.getElementById('grafico7').getContext('2d');
     const myChart7 = new Chart(ctx7, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia activa de fase C',
-                data: powerC,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Activa de Fase C (W)',
+                data: powerC,  // Asegúrate de que 'powerC' contenga los datos de potencia activa
+                backgroundColor: 'rgba(153, 102, 255, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(153, 102, 255, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Activa (W)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' W';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Total Potencia activa
+    // Crear el gráfico con Chart.js para Total Potencia Activa
     const ctx8 = document.getElementById('grafico8').getContext('2d');
     const myChart8 = new Chart(ctx8, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Total Potencia activa',
-                data: totalPower,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Total Potencia Activa (W)',
+                data: totalPower,  // Asegúrate de que 'totalPower' contenga los datos de potencia activa total
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 99, 132, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Activa (W)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' W';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia reactiva de fase A
+
+    // Crear el gráfico con Chart.js para Potencia Reactiva de Fase A
     const ctx9 = document.getElementById('grafico9').getContext('2d');
     const myChart9 = new Chart(ctx9, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia reactiva de fase A',
-                data: reactivePowerA,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Reactiva de Fase A (VAR)',
+                data: reactivePowerA,  // Asegúrate de que 'reactivePowerA' contenga los datos de potencia reactiva
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 99, 132, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Reactiva (VAR)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' VAR';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia reactiva de fase B
+
+    // Crear el gráfico con Chart.js para Potencia Reactiva de Fase B
     const ctx10 = document.getElementById('grafico10').getContext('2d');
     const myChart10 = new Chart(ctx10, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia reactiva de fase B',
-                data: reactivePowerB,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Reactiva de Fase B (VAR)',
+                data: reactivePowerB,  // Asegúrate de que 'reactivePowerB' contenga los datos de potencia reactiva
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(75, 192, 192, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Reactiva (VAR)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' VAR';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia reactiva de fase C
+
+    // Crear el gráfico con Chart.js para Potencia Reactiva de Fase C
     const ctx11 = document.getElementById('grafico11').getContext('2d');
     const myChart11 = new Chart(ctx11, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia reactiva de fase C',
-                data: reactivePowerC,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Reactiva de Fase C (VAR)',
+                data: reactivePowerC,  // Asegúrate de que 'reactivePowerC' contenga los datos de potencia reactiva
+                backgroundColor: 'rgba(153, 102, 255, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(153, 102, 255, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Reactiva (VAR)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' VAR';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Total Potencia reactiva
+
+    // Crear el gráfico con Chart.js para Total Potencia Reactiva
     const ctx12 = document.getElementById('grafico12').getContext('2d');
     const myChart12 = new Chart(ctx12, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Total Potencia reactiva',
-                data: totalReactivePower,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Total Potencia Reactiva (VAR)',
+                data: totalReactivePower,  // Asegúrate de que 'totalReactivePower' contenga los datos de potencia reactiva total
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 99, 132, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Reactiva (VAR)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' VAR';
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Factor de potencia fase A
+
+    // Crear el gráfico con Chart.js para Factor de Potencia de Fase A
     const ctx13 = document.getElementById('grafico13').getContext('2d');
     const myChart13 = new Chart(ctx13, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Factor de potencia fase A',
-                data: powerFactorA,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Factor de Potencia de Fase A',
+                data: powerFactorA,  // Asegúrate de que 'powerFactorA' contenga los datos del factor de potencia
+                backgroundColor: 'rgba(255, 159, 64, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 159, 64, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Factor de Potencia'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Factor de potencia fase B
+
+    // Crear el gráfico con Chart.js para Factor de Potencia de Fase B
     const ctx14 = document.getElementById('grafico14').getContext('2d');
     const myChart14 = new Chart(ctx14, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Factor de potencia fase B',
-                data: powerFactorB,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Factor de Potencia de Fase B',
+                data: powerFactorB,  // Asegúrate de que 'powerFactorB' contenga los datos del factor de potencia
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 99, 132, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Factor de Potencia'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Factor de potencia fase C
+
+    // Crear el gráfico con Chart.js para Factor de Potencia de Fase C
     const ctx15 = document.getElementById('grafico15').getContext('2d');
     const myChart15 = new Chart(ctx15, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Factor de potencia fase C',
-                data: powerFactorC,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Factor de Potencia de Fase C',
+                data: powerFactorC,  // Asegúrate de que 'powerFactorC' contenga los datos del factor de potencia
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(75, 192, 192, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Factor de Potencia'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Factor de potencia total
+
+    // Crear el gráfico con Chart.js para Factor de Potencia Total
     const ctx16 = document.getElementById('grafico16').getContext('2d');
     const myChart16 = new Chart(ctx16, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Factor de potencia total',
-                data: totalPowerFactor,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Factor de Potencia Total',
+                data: totalPowerFactor,  // Asegúrate de que 'totalPowerFactor' contenga los datos del factor de potencia total
+                backgroundColor: 'rgba(153, 102, 255, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(153, 102, 255, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Factor de Potencia'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia aparente fase A
+
+    // Crear el gráfico con Chart.js para Potencia Aparente de Fase A
     const ctx17 = document.getElementById('grafico17').getContext('2d');
     const myChart17 = new Chart(ctx17, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia aparente fase A',
-                data: apparentPowerA,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Aparente de Fase A',
+                data: apparentPowerA,  // Asegúrate de que 'apparentPowerA' contenga los datos de potencia aparente
+                backgroundColor: 'rgba(255, 206, 86, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 206, 86, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Aparente'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia aparente fase A
+
+    // Crear el gráfico con Chart.js para Potencia Aparente de Fase B
     const ctx18 = document.getElementById('grafico18').getContext('2d');
     const myChart18 = new Chart(ctx18, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia aparente fase B',
-                data: apparentPowerB,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Aparente de Fase B',
+                data: apparentPowerB,  // Asegúrate de que 'apparentPowerB' contenga los datos de potencia aparente
+                backgroundColor: 'rgba(255, 159, 64, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 159, 64, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Aparente'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia aparente fase C
+
+    // Crear el gráfico con Chart.js para Potencia Aparente de Fase C
     const ctx19 = document.getElementById('grafico19').getContext('2d');
     const myChart19 = new Chart(ctx19, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia aparente fase C',
-                data: apparentPowerC,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Aparente de Fase C',
+                data: apparentPowerC,  // Asegúrate de que 'apparentPowerC' contenga los datos de potencia aparente
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(75, 192, 192, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Aparente'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Potencia aparente total
+
+    // Crear el gráfico con Chart.js para Potencia Aparente Total
     const ctx20 = document.getElementById('grafico20').getContext('2d');
     const myChart20 = new Chart(ctx20, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Potencia aparente total',
-                data: totalApparentPower,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Potencia Aparente Total',
+                data: totalApparentPower,  // Asegúrate de que 'totalApparentPower' contenga los datos de potencia aparente total
+                backgroundColor: 'rgba(153, 102, 255, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(153, 102, 255, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Potencia Aparente'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                            }
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Crear el gráfico con Chart.js Consumo Energetico
+
+    // Crear el gráfico con Chart.js para Consumo Energético
     const ctx21 = document.getElementById('grafico21').getContext('2d');
     const myChart21 = new Chart(ctx21, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: labels,  // Asegúrate de que 'labels' contenga las fechas y horas correspondientes
             datasets: [
             {
-                label: 'Consumo Energetico',
-                data: energy,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Consumo Energético (kWh)',
+                data: energy,  // Asegúrate de que 'energy' contenga los datos de consumo energético en kWh
+                backgroundColor: 'rgba(255, 159, 64, 0.2)', // Nuevo color de fondo
+                borderColor: 'rgba(255, 159, 64, 1)', // Nuevo color de borde
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Consumo Energético (kWh)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha y Hora'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toFixed(2); // Formatear a dos decimales
+                            }
+                            label += ' kWh'; // Agregar unidad kWh al final del valor
+                            return label;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
                 }
             }
         }
     });
+
+
 /*
     // Crear el gráfico con Chart.js Potencia activa de fase C
     const ctx22 = document.getElementById('grafico22').getContext('2d');
