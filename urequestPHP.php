@@ -52,11 +52,17 @@ if (isset($data['V']) && isset($data['Ia']) && isset($data['Ib']) && isset($data
     $frequency = $data['F'];
     $energy = $data['Energy'];
 
-    // Calcular los ángulos de potencia
-    $angleA = acos($powerFactorA) * 180 / M_PI;
-    $angleB = acos($powerFactorB) * 180 / M_PI;
-    $angleC = acos($powerFactorC) * 180 / M_PI;
-    $totalAngle = acos($totalPowerFactor) * 180 / M_PI;
+    // Validar los factores de potencia y calcular los ángulos
+    $angleA = ($powerFactorA >= -1 && $powerFactorA <= 1) ? acos($powerFactorA) * 180 / M_PI : null;
+    $angleB = ($powerFactorB >= -1 && $powerFactorB <= 1) ? acos($powerFactorB) * 180 / M_PI : null;
+    $angleC = ($powerFactorC >= -1 && $powerFactorC <= 1) ? acos($powerFactorC) * 180 / M_PI : null;
+    $totalAngle = ($totalPowerFactor >= -1 && $totalPowerFactor <= 1) ? acos($totalPowerFactor) * 180 / M_PI : null;
+
+    // Manejar valores nulos o fuera de rango
+    $angleA = is_null($angleA) ? 0 : $angleA;
+    $angleB = is_null($angleB) ? 0 : $angleB;
+    $angleC = is_null($angleC) ? 0 : $angleC;
+    $totalAngle = is_null($totalAngle) ? 0 : $totalAngle;
 
     // Preparar y ejecutar la consulta SQL
     $stmt = $conn->prepare("INSERT INTO sensor_data (
